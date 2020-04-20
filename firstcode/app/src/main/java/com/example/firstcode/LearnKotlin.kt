@@ -13,6 +13,9 @@ fun main(){
     println("1 is Int "+ (1 is Int))
     val m = MyType()
     println("m is MyType "+(m is MyType))
+    for(i in 10 downTo 1 step 2){
+        println(i)
+    }
 }
 
 fun getMax(a: Int, b: Int): Int = if(a > b) a else b
