@@ -149,11 +149,213 @@ var range = 0 until 10
 
 ### Kotlin 面向对象编程
 
+#### 继承
 
+Kotlin 中，普通的类无法直接被继承，如果我们想要一个类能够被继承，那么需要用 open 手动打开
 
+``` kotlin
+open class Person{}
+```
 
+然后要继承至这个类，需要使用  `class CurClass : ClassName(){}`  来继承，`extend` 关键字被替换成了 `:`
 
+> 抽象类与 Java 一致
 
+为什么被继承的类还需要一对括号呢 ？
 
+#### 主构造函数 与 次构造函数
 
+主构造函数
+
+``` kotlin
+
+class Student(var sno: String, var grade: Int) : Person(){}
+```
+
+Init 函数
+
+``` kotlin
+class Student(var sno: String, var grade: Int) : Person(){
+    init {
+        print(sno+grade.toString())
+    }
+}
+```
+
+可以在 init 中间执行一些初始化逻辑
+
+好了，那么这个主函数与 Person 的那对括号有什么区别呢
+
+继承规定：子类在进行初始化的时候必须调用父类型的构造函数，所以这里我们是确定要调用父类的哪个构造函数
+
+我们现在改造 Person
+
+``` kotlin
+open class Person(var name: String, var age: Int){
+//    val name = "Brian"
+//    val age = 0
+
+    fun eat(){
+        println(name + "is eating. He is "+age+" years old")
+    }
+}
+```
+
+> 这里我们在主构造函数中定义了 name 和 age，就不能在成员中再次声明了，否则会冲突
+
+> 另外一点是，在声明成员的时候必须指定类型
+
+然后我们来看看继承的类应该如何调用该构造函数
+
+``` kotlin
+class Student(var sno: String, var grade: Int, name: String, age: Int) : Person(name, age){
+    init {
+        print(sno+grade.toString())
+    }
+}
+```
+
+首先，子类必须在构造时传入两个参数，不过这两个参数不是 `var / val`  新定义的，而是直接传入
+
+⚠️注意：这里 name 前面没有声明关键字），然后传给 Person。
+
+创建一个 Student
+
+``` kotlin
+val s = Student("01", 5, "Brian", 22)
+```
+
+需要连着父类的构造函数一起传
+
+#### 次构造函数
+
+可以通过 `constructor` 重载构造函数，可以创建多个构造方式
+
+ ```kotlin
+class Student(var sno: String, var grade: Int, name: String, age: Int) : Person(name, age){
+    
+    init {
+        println("sno:" + sno + "grade" 
+                + grade.toString()+"name:" + name + "age:" + age.toString())
+    }
+
+    constructor(name :String, age: Int) : this("00",0,name,age){}
+
+    constructor():this("00", 0){}
+}
+ ```
+
+通过 `this` 可以调用已有的构造器
+
+``` kotlin
+		val s1 = Student("01", 5, "Brian", 22)
+    val s2 = Student("02", 22)
+    val s3 = Student()
+```
+
+像这样，我们可以通过三个构造函数初始化对象。
+
+> 特殊情况：
+>
+> 如果一个类没有定义**主构造函数**吗，但是定义了次构造函数，那么它就是没有主构造函数的。
+>
+> ``` kotlin
+> class Student : Person{
+>   constructor(name: String, age: Int) : super(name, age){}
+> }
+> ```
+>
+> 这里看到，我们继承的时候不再需要 `Person()` 的括号了，因为我们没有主构造函数，所以调用父类的构造函数，被放在了 `constructor` 中直接调用 `super`。
+
+#### 接口
+
+接口和 Java 基本一致。
+
+``` kotlin
+interface Study{
+    fun readBook()
+    fun doHomeWork()
+}
+```
+
+然后在 Student 中进行实现
+
+``` kotlin
+
+class Student(
+  var sno: String, var grade: Int, name: String, age: Int) 
+: Person(name, age), Study{
+
+    override fun readBook() {
+        println("readBook")
+    }
+
+    override fun doHomeWork() {
+        println("readBook")
+    }
+}
+```
+
+这样我们可以在接口中进行统一实现，这也是多态的一部分
+
+``` kotlin
+fun doStudy(study: Study){
+    study.doHomeWork()
+    study.readBook()
+}
+```
+
+> 接口中的方法可以有默认实现
+>
+> ``` kotlin
+> interface Study{
+>     fun readBook()
+>     fun doHomeWork(){
+>         println("doHomeWork")
+>     }
+> }
+> ```
+>
+> 这样实现 Study 的类可以仅实现 readBook，而 doHomeWork 用默认实现
+
+##### 函数可见性修饰符
+
+| 修饰符    | 含义                       |
+| --------- | -------------------------- |
+| public    | 外部可访问（默认）         |
+| private   | 当前类内部可见             |
+| protected | 当前类，子类，同一包下可见 |
+| internal  | 当前模块下的类可见         |
+|           |                            |
+
+#### 数据类与单例类
+
+##### 数据类：data 关键字
+
+> 数据类通常需要重写 `equals`、`hashCode`、`toString` 方法，重写了`equals`必须重写`hashCode`，否则会导致 HashMap，HashSet 等 hash 方法无法正常工作。
+
+``` kotlin
+data class CellPhone(val brand: String, val price: Double)
+```
+
+在 kotlin 中使用 data 声明这个类，就会自动为您完成 `equals`、`hashCode`、`toString` 等固定实际逻辑无意义的方法会自动生成。
+
+##### 单例类：object 关键字
+
+该关键字会为我们实现懒汉模式的单例类，以后拿这个类就可以通过**类名**直接获得**该类的单例对象**
+
+``` kotlin
+object Singleton{
+  fun test(){}
+}
+
+fun main(){
+  val s = Singleton
+  s.test()
+}
+```
+
+> 点评：真香
+
+#### Lambda 编程
 

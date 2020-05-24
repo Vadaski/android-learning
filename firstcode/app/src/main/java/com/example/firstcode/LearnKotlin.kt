@@ -1,36 +1,57 @@
 package com.example.firstcode
 
-import kotlin.math.max
+open class Person(var name: String, var age: Int){
+//    val name = "Brian"
+//    val age = 0
 
-fun main(){
-    var a : Int
-    val x = 10
-    val y = 20
-    a = getMax(x, y)
-    println("large number is " + a)
-    println("Tom's get " + getScore("Tom")+" score")
-    checkNumber(12.0)
-    println("1 is Int "+ (1 is Int))
-    val m = MyType()
-    println("m is MyType "+(m is MyType))
-    for(i in 10 downTo 1 step 2){
-        println(i)
+    fun eat(){
+        println(name + "is eating. He is "+age+" years old")
     }
 }
 
-fun getMax(a: Int, b: Int): Int = if(a > b) a else b
-
-fun getScore(name: String) = when (name){
-    "Tom" -> 64
-    "Jim" -> 77
-    "Mike" -> 48
-    else -> null
+fun main(){
+//    val p = Person()
+//    p.eat()
+//    val s = Student("01", 5, "Brian", 22)
+//    val s1 = Student("02", 22)
+//    val s2 = Student()
+//    doStudy(s)
+    val s = Singleton
 }
 
-fun checkNumber(num: Number) = when(num){
-    is Int -> println("num is Int")
-    is Double -> println("num is double")
-    else -> print("wrong type")
+class Student(var sno: String, var grade: Int, name: String, age: Int) : Person(name, age), Study{
+
+    init {
+        println("sno:" + sno + "grade" + grade.toString()+"name:" + name + "age:" + age.toString())
+    }
+
+    constructor(name :String, age: Int) : this("00",0,name,age){
+    }
+
+    constructor():this("00", 0){
+    }
+
+    override fun readBook() {
+        println("readBook")
+    }
+
+//    override fun doHomeWork() {
+//        println("doHomeWork")
+//    }
 }
 
-class MyType
+interface Study{
+    fun readBook()
+    fun doHomeWork(){
+        println("doHomeWork")
+    }
+}
+
+fun doStudy(study: Study){
+    study.doHomeWork()
+    study.readBook()
+}
+
+data class CellPhone(val brand: String, val price: Double)
+
+object Singleton
